@@ -1,0 +1,23 @@
+﻿@page "/UpdateUser/{Id:int}"
+<h3>Update User</h3>
+<FormUser User="user" TextButton="Update User" OnValidSubmit="Update"></FormUser>
+@code {
+    [Parameter] public int Id { get; set; }
+    User user { get; set; } = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await GetUser();
+    }
+    async Task GetUser()
+    {
+        user = await Http.GetFromJsonAsync<User>($"https://localhost:44392/api/User/{Id}");
+        user.Password = Security.DecodePassword(user.Password);
+    }
+    async Task Update()
+    {
+        user.Password = Security.CodePassword(user.Password);
+        await Http.PutAsJsonAsync($"https://localhost:44392/api/User/{Id}", user);
+        Navigation.NavigateTo("/Users");
+    }
+}

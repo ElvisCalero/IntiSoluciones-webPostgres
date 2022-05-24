@@ -1,0 +1,13 @@
+﻿@page "/CreateProduct"
+<h3>Create Product</h3>
+<FormProduct Product="product" TextButton="Create Product" OnValidSubmit="Create"></FormProduct>
+@code {
+    Product product { get; set; } = new();
+
+    async Task Create()
+    {
+        product.Create_Date = DateTime.Now;
+        await Http.PostAsJsonAsync("https://localhost:44392/api/Product", product);
+        Navigation.NavigateTo("/Products");
+    }
+}

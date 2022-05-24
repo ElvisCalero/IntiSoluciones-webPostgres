@@ -1,0 +1,60 @@
+﻿@page "/Orders"
+<h3>List Orders</h3>
+
+<div class="mb-3">
+    <a class="btn btn-success" href="CreateOrder">Create Order</a>
+</div>
+
+@if (orders == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (orders.Length == 0)
+{
+    <text>Orders not found</text>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Id</th>
+                <th>Customer Id</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in orders)
+            {
+                <tr>
+                    <td>
+                        <a class="btn btn-success" href="UpdateOrder/@item.Id">Edit</a>
+                        <button class="btn btn-danger" @onclick="() => DeleteAsync(item.Id)">Delete</button>
+                    </td>
+                    <td>@item.Id</td>
+                    <td>@item.Customer_Id</td>
+                    <td>@item.Order_Date</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    Order[] orders { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetOrders();
+    }
+    async Task GetOrders()
+    {
+        orders = await Http.GetFromJsonAsync<Order[]>("https://localhost:44392/api/Order");
+    }
+    async Task DeleteAsync(int Id)
+    {
+        await Http.DeleteAsync($"https://localhost:44392/api/Order/{Id}");
+        await GetOrders();
+    }
+}

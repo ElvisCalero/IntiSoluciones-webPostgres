@@ -1,0 +1,62 @@
+﻿@page "/Users"
+<h3>List User</h3>
+
+<div class="mb-3">
+    <a class="btn btn-success" href="CreateUser">Create User</a>
+</div>
+
+@if (users == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (users.Length == 0)
+{
+    <text>Users not found</text>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Id</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in users)
+            {
+                <tr>
+                    <td>
+                        <a class="btn btn-success" href="UpdateUser/@item.Id">Edit</a>
+                        <button class="btn btn-danger" @onclick="() => DeleteAsync(item.Id)">Delete</button>
+                    </td>
+                    <td>@item.Id</td>
+                    <td>@item.Username</td>
+                    <td>@item.Password</td>
+                    <td>@item.Register_Date</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    User[] users { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetUsers();
+    }
+    async Task GetUsers()
+    {
+        users = await Http.GetFromJsonAsync<User[]>("https://localhost:44392/api/User");
+    }
+    async Task DeleteAsync(int Id)
+    {
+        await Http.DeleteAsync($"https://localhost:44392/api/User/{Id}");
+        await GetUsers();
+    }
+}

@@ -1,0 +1,14 @@
+﻿@page "/CreateUser"
+<h3>Create User</h3>
+<FormUser User="user" TextButton="Create User" OnValidSubmit="Create"></FormUser>
+@code {
+    User user { get; set; } = new();
+
+    async Task Create()
+    {
+        user.Register_Date = DateTime.Now;
+        user.Password = Security.CodePassword(user.Password);
+        await Http.PostAsJsonAsync("https://localhost:44392/api/User", user);
+        Navigation.NavigateTo("/Users");
+    }    
+}

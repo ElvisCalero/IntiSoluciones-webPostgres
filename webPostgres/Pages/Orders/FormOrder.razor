@@ -1,0 +1,118 @@
+﻿<EditForm Model="Order" OnValidSubmit="OnValidSubmit">
+    <div class="form-field mb-3">
+        <label>Customer:</label>
+        <div class="mb-3">
+            <InputSelect ValueChanged="((int value)=> Order.Customer_Id = value)" ValueExpression="(()=>Order.Customer_Id)" Value="Order.Customer_Id" class="form_group">
+                <option value="0">Seleccione...</option>
+                @foreach (var item in customers)
+                {
+                    if (Order.Customer_Id == item.Id)
+                    {
+                        <option value="@item.Id" class="form-control" selected>@item.First_Name @item.Last_Name</option>
+                    }
+                    else
+                    {
+                        <option value="@item.Id" class="form-control">@item.First_Name @item.Last_Name</option>
+                    }
+                }
+            </InputSelect>
+        </div>
+        <label>Product:</label>
+        <div class="mb-3">
+            <InputSelect ValueChanged="((int value)=> productId = value)" ValueExpression="(()=>productId)" Value="productId" class="form_group">
+                <option value="0">Seleccione...</option>
+                @foreach (var item in products)
+                {
+                    if (productId == item.Id)
+                    {
+                        <option value="@item.Id" class="form-control" selected>@item.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@item.Id" class="form-control">@item.Name</option>
+                    }
+                }
+            </InputSelect>
+        </div>
+        <label>Quantity:</label>
+        <div><InputNumber @bind-Value="productQuantity"></InputNumber></div>
+        <button type="button" class="btn btn-danger" @onclick="Add">Add List</button>
+        <div class="">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Order.orderDetails)
+                    {
+                        <tr>
+                            <td>
+                                <button type="button" class="btn btn-success" @onclick="() => Update(item)">Edit</button>
+                                <button type="button" class="btn btn-danger" @onclick="() => Delete(item)">Remove</button>
+                            </td>
+                            <td>@item.Product_Id</td>
+                            <td>@products.Where(p => p.Id == item.Product_Id).Select(p => p.Name).FirstOrDefault()</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.Unit_Price</td>
+                            <td>@item.Total_Price</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">@TextButton</button>
+</EditForm>
+
+@code {
+    [Parameter] public OrderDTO Order { get; set; } = new();
+    [Parameter] public String TextButton { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    public List<Customer> customers = new();
+    public List<Product> products = new();
+    public int productId = 0;
+    public int productQuantity = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCustomers();
+        await GetProducts();
+    }
+    async Task GetCustomers()
+    {
+        customers = await Http.GetFromJsonAsync<List<Customer>>("https://localhost:44392/api/Customer");
+    }
+    async Task GetProducts()
+    {
+        products = await Http.GetFromJsonAsync<List<Product>>("https://localhost:44392/api/Product");
+    }
+    void Add()
+    {
+        OrderDetail detail = new();
+        detail.Product_Id = productId;
+        detail.Quantity = productQuantity;
+        detail.Unit_Price = products.Where(p => p.Id == productId).Select(p => p.Price).FirstOrDefault();
+        detail.Total_Price = productQuantity * detail.Unit_Price;
+        Order.orderDetails.Add(detail);
+
+        productId = 0;
+        productQuantity = 0;
+    }
+    void Update(OrderDetail item)
+    {
+        productId = item.Product_Id;
+        productQuantity = item.Quantity;
+        Order.orderDetails.Remove(item);
+    }
+    void Delete(OrderDetail item)
+    {
+        Order.orderDetails.Remove(item);
+    }
+}

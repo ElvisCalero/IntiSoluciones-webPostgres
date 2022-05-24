@@ -1,0 +1,16 @@
+﻿@page "/CreateOrder"
+<h3>Create Order</h3>
+<FormOrder Order="order" TextButton="Create Order" OnValidSubmit="Create"></FormOrder>
+
+@code {
+    OrderDTO order { get; set; } = new();
+
+    async Task Create()
+    {
+        order.Order_Date = DateTime.Now;
+
+        await Http.PostAsJsonAsync("https://localhost:44392/api/Order", order);
+
+        Navigation.NavigateTo("/Orders");
+    }
+}

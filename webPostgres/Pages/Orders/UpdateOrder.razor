@@ -1,0 +1,23 @@
+﻿@page "/UpdateOrder/{Id:int}"
+<h3>Update Order</h3>
+
+<FormOrder Order="order" TextButton="Update Order" OnValidSubmit="Update"></FormOrder>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    OrderDTO order { get; set; } = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await GetOrder();
+    }
+    async Task GetOrder()
+    {
+        order = await Http.GetFromJsonAsync<OrderDTO>($"https://localhost:44392/api/Order/{Id}");
+    }
+    async Task Update()
+    {
+        await Http.PutAsJsonAsync($"https://localhost:44392/api/Order/{Id}", order);
+        Navigation.NavigateTo("/Orders");
+    }
+}

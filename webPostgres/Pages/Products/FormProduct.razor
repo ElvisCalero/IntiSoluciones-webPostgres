@@ -1,0 +1,17 @@
+﻿<EditForm Model="Product" OnValidSubmit="OnValidSubmit">
+    <div class="form-field mb-3">
+        <label>Code:</label>
+        <div><InputText @bind-Value="Product.Code"></InputText></div>
+        <label>Name:</label>
+        <div><InputText @bind-Value="Product.Name"></InputText></div>
+        <label>Price:</label>
+        <div><InputNumber @bind-Value="Product.Price"></InputNumber></div>
+    </div>
+    <button type="submit" class="btn btn-success">@TextButton</button>
+</EditForm>
+
+@code {
+    [Parameter] public Product Product { get; set; } = new();
+    [Parameter] public String TextButton { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+}
